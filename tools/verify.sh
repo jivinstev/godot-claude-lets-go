@@ -36,6 +36,7 @@ while [ $# -gt 0 ]; do
 	esac
 done
 OUT="proof/$NAME"; rm -rf "$OUT"; mkdir -p "$OUT"
+touch proof/.gdignore   # keep Godot from importing proof media into the project
 declare -A R; declare -A N
 
 if [ $TESTS = 1 ]; then

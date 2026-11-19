@@ -15,7 +15,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 SCENE="${1:?usage: $0 <scene> <name> [frames] [-- profile args]}"; NAME="${2:-audio}"; FRAMES="${3:-1800}"
 EXTRA=(); if [ "${4:-}" = "--" ]; then shift 4; EXTRA=("$@"); fi
-OUT="proof/audio"; mkdir -p "$OUT"
+OUT="proof/audio"; mkdir -p "$OUT"; touch proof/.gdignore
 tools/render.sh video "$SCENE" "$OUT/$NAME.avi" "$FRAMES" 256x144 >/dev/null
 ffmpeg -y -v error -i "$OUT/$NAME.avi" -map 0:a -c:a pcm_s16le "$OUT/$NAME.wav" && rm -f "$OUT/$NAME.avi"
 python3 tools/audio_profile.py "$OUT/$NAME.wav" "${EXTRA[@]}"
