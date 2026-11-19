@@ -16,7 +16,10 @@ extends Node
 ##            off   outside the viewport (needs scrolling first) — not a failure by itself
 ##            moved the screen rebuilt before this button's turn — re-run if it matters
 ##            small reached, but under 44 px tall/wide — too small for a thumb (warning)
-## Exits 1 if anything is DEAD.
+##            UNDER its centre works, but part of it lies under an on-screen touch control (stick
+##                  zone, a face button, a trigger), so a thumb on that part fires the control
+##                  instead — a bug. A tap at the exact centre cannot see this; the geometry can.
+## Exits 1 if anything is DEAD or UNDER.
 ##
 ## SceneDirector.capture_only is on, so a button that navigates is recorded, not followed.
 ## Hook: if the screen has `func touch_probe_setup() -> void`, it is called before probing.
@@ -98,7 +101,10 @@ func _collect() -> void:
 		if r.get_area() <= 0.0:
 			continue
 		var k := _key(r)
-		_seen[k] = {"label": b.text if b.text != "" else "<%s>" % b.name, "rect": r}
+		# Overlap is judged the FIRST time a button is seen: a tap on an earlier button may change
+		# the layout (a "next layout" button does), and the screen as first shown is what counts.
+		var under: String = _seen[k].under if _seen.has(k) else _under_touch_control(r)
+		_seen[k] = {"label": b.text if b.text != "" else "<%s>" % b.name, "rect": r, "under": under}
 		_present[k] = true
 		if not b.pressed.is_connected(_on_fired):
 			b.pressed.connect(_on_fired.bind(k))
@@ -127,7 +133,12 @@ func _report() -> void:
 			print("TOUCH_PROBE off   %-28s at %s" % [info.label, k])
 			continue
 		var verdict := "ok" if ok else "DEAD"
-		if ok and minf(r.size.x, r.size.y) < 44.0:
+		var under: String = info.under
+		if ok and under != "":
+			verdict = "UNDER"
+			ok = false
+			info.label = "%s (under %s)" % [info.label, under]
+		elif ok and minf(r.size.x, r.size.y) < 44.0:
 			verdict = "small"
 			small += 1
 		print("TOUCH_PROBE %-5s %-28s %.0fx%.0f at %s" % [verdict, info.label, r.size.x, r.size.y, k])
@@ -138,6 +149,22 @@ func _report() -> void:
 	if not dead.is_empty():
 		print("TOUCH_PROBE DEAD: " + ", ".join(dead))
 	get_tree().quit(1 if not dead.is_empty() else 0)
+
+
+## Which on-screen touch control (if any) claims part of this rectangle.
+func _under_touch_control(r: Rect2) -> String:
+	if not TouchControls.is_painting():
+		return ""
+	var half := get_viewport().get_visible_rect().size.x * 0.5
+	for c in TouchControls.controls():
+		var reach: float = c.radius * 1.25            # TouchControls' own hit radius
+		var nearest := Vector2(clampf(c.center.x, r.position.x, r.end.x), clampf(c.center.y, r.position.y, r.end.y))
+		if nearest.distance_to(c.center) <= reach:
+			return c.label if c.label != "" else c.kind
+		# The stick / d-pad also claims any touch on the left half that hits no other control.
+		if c.kind in ["stick", "dpad"] and r.position.x < half:
+			return c.kind + " zone (left half)"
+	return ""
 
 
 func _walk(n: Node) -> Array:

@@ -43,9 +43,10 @@ func _ready() -> void:
 	_video.expand = true
 	_video.bus = "Music" if AudioServer.get_bus_index("Music") >= 0 else "Master"
 	fit.add_child(_video)
-	_subs = _make_label(34, Control.PRESET_CENTER_BOTTOM, -110)
-	_hint = _make_label(20, Control.PRESET_TOP_RIGHT, 24)
-	_hint.text = "Tap again to skip" if DisplayServer.is_touchscreen_available() else "Press again to skip"
+	_subs = _make_label(34, true)
+	_hint = _make_label(22, false)
+	var touch := DisplayServer.is_touchscreen_available() or OS.get_environment("TOUCH_SIM") == "1"
+	_hint.text = "Tap again to skip" if touch else "Press again to skip"
 	_hint.visible = false
 	if subtitles_path != "":
 		_cues = Srt.load_file(subtitles_path)
@@ -99,17 +100,24 @@ func _finish() -> void:
 	SceneDirector.goto(next_scene)
 
 
-func _make_label(font_size: int, preset: int, offset_y: float) -> Label:
+func _make_label(font_size: int, bottom: bool) -> Label:
 	var l := Label.new()
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if bottom else HORIZONTAL_ALIGNMENT_RIGHT
+	l.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM if bottom else VERTICAL_ALIGNMENT_TOP
 	l.add_theme_font_override(&"font", UiStyle.FONT_BODY)
 	l.add_theme_font_size_override(&"font_size", font_size)
 	l.add_theme_constant_override(&"outline_size", 8)
 	l.add_theme_color_override(&"font_outline_color", Color.BLACK)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(l)
-	l.set_anchors_and_offsets_preset(preset, Control.PRESET_MODE_MINSIZE, 24)
-	l.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	if preset == Control.PRESET_CENTER_BOTTOM:
-		l.position.y += offset_y
+	# Full-width strip anchored to the bottom (subtitles) or the top (skip hint), so text of any
+	# length stays on screen instead of growing off an edge.
+	l.anchor_left = 0.0
+	l.anchor_right = 1.0
+	l.anchor_top = 1.0 if bottom else 0.0
+	l.anchor_bottom = 1.0 if bottom else 0.0
+	l.offset_left = 40
+	l.offset_right = -40
+	l.offset_top = -190 if bottom else 24
+	l.offset_bottom = -56 if bottom else 80
 	return l

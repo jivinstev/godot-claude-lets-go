@@ -150,7 +150,7 @@ Godot + templates are cached.
 - [x] **P2 Building blocks** — SceneDirector, TouchControls (+ layouts), AudioManager, SaveManager,
       BaseScreen, PauseMenu, ConfirmOverlay, CutscenePlayer. Unit tests each. *Verify:* touch probe
       on every menu; audio probe asserts sound starts/stops.
-- [ ] **P3 Samples + sample game + generated assets + CREDITS.md.** *Verify:* autoplay playthrough
+- [x] **P3 Samples + sample game + generated assets + CREDITS.md.** *Verify:* autoplay playthrough
       video with audio, contact sheet, audio profile with no gaps, touch probe on every screen,
       the full proof Artifact.
 - [ ] **P4 Builds** — export presets, `build.yml`, `ci.yml`, local `android_*` fallback,

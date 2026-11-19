@@ -131,6 +131,25 @@ func stick(dir: Vector2, sec: float) -> void:
 	_axis(JOY_AXIS_LEFT_Y, 0.0)
 
 
+## Hold the left stick at `dir` until changed (call every frame to steer a bot).
+func set_stick(dir: Vector2) -> void:
+	_axis(JOY_AXIS_LEFT_X, dir.x)
+	_axis(JOY_AXIS_LEFT_Y, dir.y)
+
+
+## Wait until `cond` returns true, or `timeout` seconds pass. Returns whether it came true.
+func wait_until(cond: Callable, timeout: float, every_frame: Callable = Callable()) -> bool:
+	var t := 0.0
+	while t < timeout:
+		if cond.call():
+			return true
+		if every_frame.is_valid():
+			every_frame.call()
+		await get_tree().process_frame
+		t += get_process_delta_time()
+	return cond.call()
+
+
 ## Record an assertion about the running game.
 func check(ok: bool, what: String) -> bool:
 	_checks += 1
