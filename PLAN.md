@@ -147,7 +147,7 @@ Godot + templates are cached.
 - [x] **P1 Verification tools** — cloud_render, screenshot, touch probe, audio capture/profile,
       autoplay pattern, `verify.sh`, `/verify` skill. *Verify:* run each against the title screen;
       touch probe reports every button `ok`; a planted covered button reads `DEAD`.
-- [ ] **P2 Building blocks** — SceneDirector, TouchControls (+ layouts), AudioManager, SaveManager,
+- [x] **P2 Building blocks** — SceneDirector, TouchControls (+ layouts), AudioManager, SaveManager,
       BaseScreen, PauseMenu, ConfirmOverlay, CutscenePlayer. Unit tests each. *Verify:* touch probe
       on every menu; audio probe asserts sound starts/stops.
 - [ ] **P3 Samples + sample game + generated assets + CREDITS.md.** *Verify:* autoplay playthrough

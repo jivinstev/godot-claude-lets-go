@@ -80,7 +80,10 @@ func load_game() -> void:
 	_data = {}
 	if FileAccess.file_exists(save_path):
 		var text := FileAccess.get_file_as_string(save_path)
-		var parsed: Variant = JSON.parse_string(text) if not text.is_empty() else null
+		# JSON.new().parse() rather than JSON.parse_string(): the latter logs an engine error on
+		# bad input, and a corrupt save is an expected case here, not an error.
+		var json := JSON.new()
+		var parsed: Variant = json.data if json.parse(text) == OK else null
 		if typeof(parsed) != TYPE_DICTIONARY:
 			push_warning("SaveManager: %s is unreadable — starting from an empty save" % save_path)
 		else:
