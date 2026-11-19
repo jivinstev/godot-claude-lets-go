@@ -141,7 +141,7 @@ Godot + templates are cached.
 
 ## Phases (each ends with its own verification)
 
-- [ ] **P0 Skeleton** — project, `godot-version`, hook, `run_tests.sh`, GUT, dummy title screen.
+- [x] **P0 Skeleton** — project, `godot-version`, hook, `run_tests.sh`, GUT, dummy title screen.
       *Verify:* fresh-VM run of the hook, tests green, a deliberately broken test file makes the
       runner fail (proves the hardening), still of the title screen.
 - [ ] **P1 Verification tools** — cloud_render, screenshot, touch probe, audio capture/profile,
