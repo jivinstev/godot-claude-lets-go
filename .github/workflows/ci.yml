@@ -1,0 +1,34 @@
+name: Tests
+
+# The headless test suite, on pull requests and on main. Branch pushes do NOT run it — an agent in
+# a cloud session runs ./run_tests.sh itself before every commit, and free Actions minutes are
+# finite. Run it on any branch by hand: Actions → Tests → Run workflow.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the engine version
+        run: echo "GODOT_VERSION=$(tr -d '[:space:]' < godot-version)" >> "$GITHUB_ENV"
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-linux
+      - name: Install Godot
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot-bin
+          curl -fsSL -o /tmp/godot.zip "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -oq /tmp/godot.zip -d ~/godot-bin
+          mv ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot-bin/godot
+          chmod +x ~/godot-bin/godot
+      - name: Run tests
+        run: GODOT="$HOME/godot-bin/godot" ./run_tests.sh

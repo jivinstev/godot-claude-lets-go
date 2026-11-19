@@ -180,7 +180,10 @@ func find_button(text: String) -> Button:
 func _touch(pos: Vector2, down: bool) -> void:
 	var e := InputEventScreenTouch.new()
 	e.index = 0
-	e.position = pos
+	# Input events arrive in WINDOW pixels; game positions are in VIEWPORT pixels. They only match
+	# when the window is exactly the project size — at any other capture size (or a phone panel)
+	# an unconverted tap lands somewhere else entirely and "nothing responds".
+	e.position = get_tree().root.get_final_transform() * pos
 	e.pressed = down
 	Input.parse_input_event(e)
 

@@ -14,6 +14,7 @@ var game: Node2D
 
 func run() -> void:
 	SaveManager.save_path = "user://demo_save.json"   # never touch a real player's best time
+	TouchControls.simulate_touchscreen(true)          # this demo taps the on-screen pause button
 	SaveManager.clear()
 	await goto("res://samples/samples_menu.tscn")
 	await wait(0.8)
