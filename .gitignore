@@ -1,0 +1,18 @@
+# Godot
+.godot/
+*.translation
+
+# export_presets.cfg IS committed: CI exports from it. It holds no secrets; signing uses the
+# public debug keystore in ci/.
+
+# Local build output (CI publishes real APKs to GitHub Releases)
+build/
+
+# Verification output — published as Artifacts, never committed
+proof/
+
+# OS / scratch
+.DS_Store
+Thumbs.db
+*.tmp
+/media-worktree/
