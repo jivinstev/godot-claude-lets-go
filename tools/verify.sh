@@ -37,7 +37,11 @@ while [ $# -gt 0 ]; do
 done
 OUT="proof/$NAME"; rm -rf "$OUT"; mkdir -p "$OUT"
 touch proof/.gdignore   # keep Godot from importing proof media into the project
-declare -A R; declare -A N
+declare -A R=([tests]=skip [checks]=fail [touch]=skip [audio]=skip)
+declare -A N=([tests]="" [checks]="" [touch]="" [audio]="not captured")
+# Demos and probes really press buttons. Point the game at a throwaway save so a "Reset" or a
+# crashed demo can never touch the player's real one (SaveManager reads GAME_SAVE_PATH).
+export GAME_SAVE_PATH="${GAME_SAVE_PATH:-user://verify_save.json}"
 
 if [ $TESTS = 1 ]; then
 	echo "== tests"
@@ -51,7 +55,9 @@ cap=$?
 # render.sh greps the log; get the full VERIFY/AUTOPLAY lines from its output.
 grep -E "^(AUTOPLAY|VERIFY)" "$OUT/render.txt" > "$OUT/run.log" || true
 if [ $cap -ne 0 ] || [ ! -s "$OUT/clip.avi" ]; then
-	R[checks]=fail; N[checks]="capture failed — see render.txt"; cat "$OUT/render.txt" | tail -15
+	R[checks]=fail; N[checks]="capture failed — $(grep -m1 -E 'SCRIPT ERROR|error:' "$OUT/render.txt" | cut -c1-160)"
+	tail -15 "$OUT/render.txt"
+	rm -f "$OUT/clip.avi"
 else
 	pass=$(grep -c "^VERIFY PASS" "$OUT/run.log"); fail=$(grep -c "^VERIFY FAIL" "$OUT/run.log")
 	if [ "$fail" -gt 0 ]; then R[checks]=fail; elif [ "$pass" -gt 0 ]; then R[checks]=pass; else R[checks]=warn; fi

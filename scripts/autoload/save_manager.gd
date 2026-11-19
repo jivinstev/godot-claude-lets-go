@@ -21,13 +21,19 @@ signal loaded
 
 const SAVE_VERSION := 1
 
-## Overridable so tests never touch a player's real save.
+## Overridable so tests never touch a player's real save. Verification tools set the env var
+## GAME_SAVE_PATH (tools/verify.sh, tools/touch_probe.sh, Autoplay) so a demo or a probe that
+## really presses "Reset progress" cannot wipe yours — and a second process launched to check
+## persistence reads the same file.
 var save_path := "user://save.json"
 
 var _data: Dictionary = {}
 
 
 func _ready() -> void:
+	var override := OS.get_environment("GAME_SAVE_PATH")
+	if override != "":
+		save_path = override
 	load_game()
 
 

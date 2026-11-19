@@ -66,7 +66,7 @@ for l in touch:
         touch_rows += '<tr class="sum"><td colspan="3" class="mono">%s</td></tr>' % esc(l.replace("TOUCH_PROBE ", ""))
 
 title = m.get("title") or m["name"]
-page = """<title>%(title)s proof</title>
+page = """<title>%(title)s</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap">
 <style>

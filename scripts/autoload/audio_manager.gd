@@ -98,11 +98,21 @@ func play_sfx(stream: AudioStream, pitch_jitter: float = 0.0, volume_db: float =
 	return p
 
 
-## Bus volume as 0..1 (perceptual-ish: linear amplitude). Saved under settings/volume_<bus>.
-func set_volume(bus: String, linear: float) -> void:
+## Bus volume as 0..1 (linear amplitude). Ramped over FADE_MIN_SEC (an instant step is a click)
+## and written to disk under settings/volume_<bus> — pass persist=false to skip the save.
+func set_volume(bus: String, linear: float, persist: bool = true) -> void:
 	linear = clampf(linear, 0.0, 1.0)
-	_apply_volume(bus, linear)
+	var i := AudioServer.get_bus_index(bus)
+	if i < 0:
+		return
+	var from := db_to_linear(AudioServer.get_bus_volume_db(i)) if not AudioServer.is_bus_mute(i) else 0.0
+	AudioServer.set_bus_mute(i, false)
+	var t := create_tween()
+	t.tween_method(func(v: float): AudioServer.set_bus_volume_db(i, linear_to_db(maxf(v, 0.0001))), from, linear, FADE_MIN_SEC)
+	t.tween_callback(func(): _apply_volume(bus, linear))
 	SaveManager.set_value("settings", "volume_" + bus, linear)
+	if persist:
+		SaveManager.save()
 
 
 func get_volume(bus: String) -> float:

@@ -58,8 +58,11 @@ case "$cmd" in
 		# switch to frame time under Movie Maker (see tools/autoplay/autoplay.gd).
 		log="$(sw --write-movie "$(realpath -m "$out")" --fixed-fps 30 --disable-vsync --quit-after "$frames" \
 			--resolution "$res" --path "$ROOT" "$scene" 2>&1)" || true
-		grep -E "$ERR_RE" <<<"$log" && { echo "error: the scene logged script errors" >&2; exit 1; }
 		grep -E "^(AUTOPLAY|VERIFY)" <<<"$log" || true
+		if grep -qE "$ERR_RE" <<<"$log"; then
+			grep -E -A4 "$ERR_RE" <<<"$log" | head -20
+			echo "error: the scene logged script errors" >&2; exit 1
+		fi
 		[ -s "$out" ] || { echo "$log" | tail -20; echo "error: no video produced" >&2; exit 1; }
 		echo "wrote $out ($frames frames)"
 		;;

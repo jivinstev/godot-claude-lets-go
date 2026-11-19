@@ -37,6 +37,12 @@ func run() -> void:
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# A demo presses real buttons: never against the player's own save. (verify.sh sets this too;
+	# this covers a demo run by hand. SaveManager loaded already, so re-point and reload it.)
+	if OS.get_environment("GAME_SAVE_PATH") == "":
+		OS.set_environment("GAME_SAVE_PATH", "user://verify_save.json")
+		SaveManager.save_path = "user://verify_save.json"
+		SaveManager.load_game()
 	if OS.get_environment("TOUCH_SIM") == "1":
 		TouchControls.simulate_touchscreen(true)
 	_markers = CanvasLayer.new()
@@ -150,7 +156,21 @@ func wait_until(cond: Callable, timeout: float, every_frame: Callable = Callable
 	return cond.call()
 
 
+## Prove something survives a restart: run a SECOND, fresh Godot process (headless) on `scene`
+## and return everything it printed. It inherits GAME_SAVE_PATH, so it reads the same save the
+## demo just wrote. Have the scene (or a tiny probe scene) print what you want to check, then:
+##   var out := launch_fresh("res://tools/demos/print_settings.tscn")
+##   check(out.contains("music=0.5"), "the setting survives a relaunch")
+func launch_fresh(scene_path: String, frames: int = 30) -> String:
+	var out: Array = []
+	var args := ["--headless", "--path", ProjectSettings.globalize_path("res://"), scene_path, "--quit-after", str(frames)]
+	OS.execute(OS.get_executable_path(), args, out, true)
+	log_line("launched a fresh instance of %s" % scene_path)
+	return "\n".join(out)
+
+
 ## Record an assertion about the running game.
+## Beware a literal % in `what` if you build it with the % operator: escape it as %%.
 func check(ok: bool, what: String) -> bool:
 	_checks += 1
 	if not ok:

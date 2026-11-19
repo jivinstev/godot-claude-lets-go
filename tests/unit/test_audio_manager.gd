@@ -35,11 +35,12 @@ func test_replaying_the_current_track_does_not_restart_it() -> void:
 	AudioManager.play_music(t, 0.05)
 	await wait_seconds(0.5)
 	AudioManager.play_music(t, 0.05)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_eq(AudioManager.current_music(), t)
 
 
 func test_volume_zero_mutes_and_is_saved() -> void:
 	AudioManager.set_volume("Music", 0.0)
+	await wait_seconds(0.15)   # the change is ramped, never stepped (a step is a click)
 	assert_true(AudioServer.is_bus_mute(AudioServer.get_bus_index("Music")))
 	assert_eq(SaveManager.get_value("settings", "volume_Music"), 0.0)

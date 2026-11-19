@@ -5,6 +5,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 GODOT="$(tools/godot_path.sh)" || exit 1
+export GAME_SAVE_PATH="${GAME_SAVE_PATH:-user://verify_save.json}"   # taps are real; protect the real save
 fail=0
 for scene in "$@"; do
 	out="$(TOUCH_SCENE="$scene" "$GODOT" --headless --path . res://tools/touch_probe.tscn --quit-after 1200 2>&1)"

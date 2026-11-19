@@ -20,7 +20,7 @@ func before_each() -> void:
 	_s = LongScreen.new()
 	_s.size = Vector2(1280, 720)
 	add_child_autofree(_s)
-	await wait_frames(3)
+	await wait_process_frames(3)
 
 
 func test_overflowing_screen_scrolls_on_drag() -> void:
@@ -30,7 +30,7 @@ func test_overflowing_screen_scrolls_on_drag() -> void:
 	Input.parse_input_event(t)
 	var d := InputEventScreenDrag.new(); d.position = Vector2(640, 300); d.relative = Vector2(0, -200)
 	Input.parse_input_event(d)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_gt(_s._scroll.scroll_vertical, start, "a finger drag scrolls the menu")
 
 

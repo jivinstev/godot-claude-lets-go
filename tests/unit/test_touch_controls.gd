@@ -13,7 +13,7 @@ func before_each() -> void:
 func after_each() -> void:
 	TouchControls.set_layout(TouchControls.Layout.NONE)
 	TouchControls.release_all()
-	await wait_frames(2)
+	await wait_process_frames(2)
 
 
 func _control(label: String) -> Dictionary:
@@ -54,17 +54,17 @@ func test_layouts_have_the_controls_they_promise() -> void:
 func test_tapping_a_fires_action_a() -> void:
 	TouchControls.set_layout(TouchControls.Layout.STICK_AB)
 	_touch(_control("A").center, true)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_true(Input.is_action_pressed("action_a"), "A pulses JOY_BUTTON_A → action_a")
 	_touch(_control("A").center, false)
-	await wait_frames(TouchControls.PULSE_FRAMES + 2)
+	await wait_process_frames(TouchControls.PULSE_FRAMES + 2)
 	assert_false(Input.is_action_pressed("action_a"), "the pulse releases on its own")
 
 
 func test_pause_button_fires_pause() -> void:
 	TouchControls.set_layout(TouchControls.Layout.STICK_A)
 	_touch(_control("II").center, true)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_true(Input.is_action_pressed("pause"))
 
 
@@ -76,10 +76,10 @@ func test_dragging_the_stick_moves() -> void:
 	d.index = 0
 	d.position = c + Vector2(90, 0)
 	Input.parse_input_event(d)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_gt(Input.get_action_strength("move_right"), 0.5)
 	_touch(c, false)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_eq(Input.get_action_strength("move_right"), 0.0, "releasing recentres the stick")
 
 
@@ -87,10 +87,10 @@ func test_dpad_holds_a_direction() -> void:
 	TouchControls.set_layout(TouchControls.Layout.DPAD_AB)
 	var c: Vector2 = TouchControls.controls()[0].center
 	_touch(c + Vector2(0, -70), true)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_true(Input.is_action_pressed("move_up"))
 	_touch(c + Vector2(0, -70), false)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_false(Input.is_action_pressed("move_up"))
 
 
@@ -98,8 +98,8 @@ func test_changing_layout_releases_held_input() -> void:
 	TouchControls.set_layout(TouchControls.Layout.STICK_AB)
 	var c: Vector2 = TouchControls.controls()[0].center
 	_touch(c + Vector2(-90, 0), true)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_gt(Input.get_action_strength("move_left"), 0.5)
 	TouchControls.set_layout(TouchControls.Layout.NONE)
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_eq(Input.get_action_strength("move_left"), 0.0, "a held stick must not carry into a menu")

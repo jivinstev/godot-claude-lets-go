@@ -16,6 +16,9 @@ extends Node
 ##            off   outside the viewport (needs scrolling first) — not a failure by itself
 ##            moved the screen rebuilt before this button's turn — re-run if it matters
 ##            small reached, but under 44 px tall/wide — too small for a thumb (warning)
+##            disabled  not probed. Counted in the RESULT line so a screen whose buttons start
+##                  disabled can't report "all reachable" without saying so — put the screen in a
+##                  state that enables them from `touch_probe_setup()`.
 ##            UNDER its centre works, but part of it lies under an on-screen touch control (stick
 ##                  zone, a face button, a trigger), so a thumb on that part fires the control
 ##                  instead — a bug. A tap at the exact centre cannot see this; the geometry can.
@@ -32,6 +35,7 @@ var _present := {}
 var _moved := {}
 var _at := -1
 var _frame := 0
+var _disabled := {}
 
 
 static func _key(r: Rect2) -> String:
@@ -95,9 +99,12 @@ func _collect() -> void:
 	_present.clear()
 	for n in _walk(get_tree().root):
 		var b := n as Button
-		if b == null or not b.is_visible_in_tree() or b.disabled:
+		if b == null or not b.is_visible_in_tree():
 			continue
 		var r := b.get_global_rect()
+		if b.disabled:
+			_disabled[_key(r)] = b.text if b.text != "" else "<%s>" % b.name
+			continue
 		if r.get_area() <= 0.0:
 			continue
 		var k := _key(r)
@@ -145,7 +152,11 @@ func _report() -> void:
 		if not ok:
 			dead.append(info.label)
 	var tested := _order.size() - moved - off
-	print("TOUCH_PROBE RESULT %d/%d reachable (%d off-screen, %d moved, %d small)" % [tested - dead.size(), tested, off, moved, small])
+	for k in _disabled:
+		if not _seen.has(k):
+			print("TOUCH_PROBE disabled %-25s at %s (not probed)" % [_disabled[k], k])
+	var n_disabled := _disabled.keys().filter(func(k): return not _seen.has(k)).size()
+	print("TOUCH_PROBE RESULT %d/%d reachable (%d off-screen, %d moved, %d small, %d disabled not probed)" % [tested - dead.size(), tested, off, moved, small, n_disabled])
 	if not dead.is_empty():
 		print("TOUCH_PROBE DEAD: " + ", ".join(dead))
 	get_tree().quit(1 if not dead.is_empty() else 0)

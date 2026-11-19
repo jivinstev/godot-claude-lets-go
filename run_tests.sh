@@ -14,6 +14,8 @@ cd "$(dirname "$0")"
 GODOT="$(tools/godot_path.sh)"
 SELECT="${1:-}"
 REPEAT="${REPEAT:-1}"
+# Tests exercise real saves; keep them off the developer's own save file.
+export GAME_SAVE_PATH="user://test_suite_save.json"
 
 echo "== engine: $("$GODOT" --version | head -1)"
 echo "== import"

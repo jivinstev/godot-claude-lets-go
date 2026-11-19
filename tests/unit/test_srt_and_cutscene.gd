@@ -25,6 +25,6 @@ func test_cutscene_without_video_moves_on() -> void:
 	c.video_path = "res://does/not/exist.ogv"
 	c.next_scene = "res://scenes/game.tscn"
 	add_child_autofree(c)
-	await wait_frames(3)
+	await wait_process_frames(3)
 	assert_eq(SceneDirector.last_target, "res://scenes/game.tscn")
 	SceneDirector.capture_only = false

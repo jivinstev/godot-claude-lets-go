@@ -76,12 +76,20 @@ then `~/godot-bin/godot` (cloud VM), then `godot` on PATH.
    before blaming code.
 5. **Touch probe** — taps every visible button through the real input path and every CanvasLayer;
    fails on `DEAD` (covered) and `UNDER` (overlaps an on-screen control). Existence ≠ reachability.
+   Disabled buttons are listed, not probed: if a screen starts with some disabled, give it a
+   `func touch_probe_setup() -> void` that puts it in a state where they're enabled.
 6. **A real phone** (APK) — feel, latency, performance, mix quality. Not verifiable here; say so.
 
 **When a capture looks wrong, suspect the harness first** (a demo that never reached the scene, a
 wait too short), then the game. **Render on the renderer you ship** — `tools/render.sh` defaults to
 Mobile (Vulkan via lavapipe in a VM); Compatibility silently ignores some material features.
 **When a fix and its test both pass, revert the fix and watch the test go red.**
+
+**Verification never touches the player's save.** `run_tests.sh`, `tools/verify.sh`,
+`tools/touch_probe.sh` and every `Autoplay` demo point `SaveManager` at a throwaway file via the
+`GAME_SAVE_PATH` env var. To prove something **survives a restart**, call
+`launch_fresh("res://some_scene.tscn")` from the demo: a second Godot process that reads the same
+throwaway save and returns what it printed.
 
 ## Map
 

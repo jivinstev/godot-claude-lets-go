@@ -37,7 +37,8 @@ func run() -> void:
 | `press(action)` / `hold(action, sec)` / `down` / `up` | an `InputEventAction` for an InputMap action |
 | `stick(dir, sec)` / `set_stick(dir)` | left-stick axis events, as a pad sends |
 | `wait(sec)` / `wait_frames(n)` / `wait_until(cond, timeout, each_frame)` | game-time waits |
-| `check(ok, what)` | records `VERIFY PASS/FAIL what` |
+| `check(ok, what)` | records `VERIFY PASS/FAIL what` (escape a literal `%` as `%%` when formatting) |
+| `launch_fresh(scene)` | run a second, fresh Godot process on the same save; returns its output — proves persistence |
 | `scene()`, `find_button(text)` | the current scene; a visible button by text |
 
 Rules: drive the game through input, not by calling its functions. Show the interaction the user
@@ -55,6 +56,7 @@ buttons.
 | `off` | outside the viewport; needs scrolling first |
 | `moved` | the screen rebuilt before its turn; re-run before believing it |
 | `small` | under 44 px — too small for a thumb (warning) |
+| `disabled` | not probed; counted in RESULT. Enable it from the screen's `touch_probe_setup()` |
 
 `TOUCH_LAYOUT=FULL` probes with a gameplay layout drawn on top; `TOUCH_SIZE=2340x1080` a real panel.
 
@@ -68,6 +70,12 @@ means it stopped. Check the source file before blaming code.
 Inside tests, `AudioProbe.listen_to("Music")` puts a capture on a bus and returns real levels:
 silence reads 0.0, a playing sound ~0.5.
 
+## Saves during verification
+
+Every tool sets `GAME_SAVE_PATH=user://verify_save.json` (tests: `user://test_suite_save.json`), and
+`SaveManager` uses it instead of the real save — so a demo that presses "Reset progress", or one
+that crashes halfway, cannot damage the player's data.
+
 ## Lessons already paid for
 
 - A **centre tap passed** a button that a shoulder trigger half-covered; the contact sheet showed it.
@@ -75,3 +83,6 @@ silence reads 0.0, a playing sound ~0.5.
 - A demo at a **non-native capture size** tapped the wrong place, because input events are in window
   pixels; `Autoplay` now converts.
 - A capture that quietly **records nothing useful** still "passes". Read the sheet.
+- A **dry run from a fresh session** found that verification wrote over the real save, a crashed
+  capture produced no page at all, and disabled buttons were skipped without a word. All fixed.
+  Running the template cold, from a starter prompt, is the best test it has.

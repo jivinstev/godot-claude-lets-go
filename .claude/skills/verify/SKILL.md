@@ -31,6 +31,11 @@ Copy `tools/demos/title_demo.gd` (+ its one-line `.tscn`). Extend `Autoplay`, dr
 through the **same input a player uses** (`tap_button`, `tap`, `press`, `hold`, `stick`), and
 `check()` the outcome. Calling game functions directly proves the function, not the feature.
 
+Persistence ("saved between launches"): write it in the demo, then `launch_fresh(scene)` runs a
+second, fresh Godot process on the same throwaway save and returns its output — `check()` that.
+Screens whose buttons start disabled: add `func touch_probe_setup() -> void` to the screen to
+enable them for the probe (the RESULT line counts disabled buttons it skipped).
+
 Make it realistic: show the actual interaction the user cares about (the collision, the reaction,
 the crowd moving), long enough to see it — and for audio, long enough to cross every join
 (track changes, loops, scene changes). Short captures hide seam bugs.
