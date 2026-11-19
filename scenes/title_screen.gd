@@ -16,4 +16,4 @@ func build() -> void:
 	if ResourceLoader.exists(SAMPLES_MENU):
 		add_button("Samples", func(): goto(SAMPLES_MENU))
 	if OS.get_name() != "Web" and OS.get_name() != "iOS":
-		add_button("Quit", func(): get_tree().quit())
+		add_button("Quit", SceneDirector.quit)

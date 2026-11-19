@@ -144,7 +144,7 @@ Godot + templates are cached.
 - [x] **P0 Skeleton** — project, `godot-version`, hook, `run_tests.sh`, GUT, dummy title screen.
       *Verify:* fresh-VM run of the hook, tests green, a deliberately broken test file makes the
       runner fail (proves the hardening), still of the title screen.
-- [ ] **P1 Verification tools** — cloud_render, screenshot, touch probe, audio capture/profile,
+- [x] **P1 Verification tools** — cloud_render, screenshot, touch probe, audio capture/profile,
       autoplay pattern, `verify.sh`, `/verify` skill. *Verify:* run each against the title screen;
       touch probe reports every button `ok`; a planted covered button reads `DEAD`.
 - [ ] **P2 Building blocks** — SceneDirector, TouchControls (+ layouts), AudioManager, SaveManager,

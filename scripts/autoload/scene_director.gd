@@ -69,6 +69,15 @@ func goto(path: String) -> void:
 		goto(next)
 
 
+## Quit the app. Under capture_only (tests, the touch probe) the quit is recorded, not performed.
+func quit() -> void:
+	if capture_only:
+		last_target = "quit"
+		visited.append("quit")
+		return
+	get_tree().quit()
+
+
 ## Immediate change with no fade (tools and tests).
 func goto_now(path: String) -> void:
 	_before_change()
