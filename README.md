@@ -115,7 +115,7 @@ Details: [docs/verification.md](docs/verification.md).
 
 | Way | How |
 |---|---|
-| Ask Claude | "Build me an APK." Claude pushes a commit with `[apk]` in the message, and GitHub posts a Release with a download link in about 5 minutes. |
+| Ask Claude | "Build me an APK." Claude pushes a commit with `[apk]` in the message, and GitHub posts a Release with a download link, about 2 minutes later. |
 | Merge a PR into `main` | Automatic. |
 | By hand | Actions → *Android APK* → *Run workflow*. |
 | No CI available | Claude runs `tools/android_build.sh --publish` in the session and sends a link. |
